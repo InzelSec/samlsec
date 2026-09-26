@@ -1,21 +1,76 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { decodeSAML, encodingLabel } from '@/lib/saml/decode';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { decodeSAML } from '@/lib/saml/decode';
 import { inspect, type InspectSummary } from '@/lib/saml/inspect';
-import { SAMPLES, SAMPLE_XML, DEFAULT_SAMPLE_ID } from '@/content/fixtures/samples';
+import { highlightXml, HL_CLASS } from '@/lib/saml/highlight';
 import { Instrument } from '@/components/ui/Panel';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
-import { CodeXml } from '@/components/ui/CodeXml';
 import { cn } from '@/lib/cn';
 
 const PANEL_KEY = 'samlsec-viewer-panel';
 
+/**
+ * Shared box metrics between the highlighted `<pre>` and the transparent
+ * `<textarea>` stacked on top of it in `EditableXml` — they must match
+ * exactly (font, size, line-height, padding, wrapping) or the invisible
+ * caret/text in the textarea drifts out of alignment with the colored glyphs
+ * rendered underneath it.
+ */
+const SURFACE = 'whitespace-pre-wrap break-words p-4 font-mono text-[13px] leading-relaxed';
+
+function EditableXml({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const preRef = useRef<HTMLPreElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const tokens = useMemo(() => highlightXml(value), [value]);
+
+  const syncScroll = () => {
+    if (preRef.current && taRef.current) {
+      preRef.current.scrollTop = taRef.current.scrollTop;
+      preRef.current.scrollLeft = taRef.current.scrollLeft;
+    }
+  };
+
+  return (
+    <div className="relative h-[62vh] lg:h-[80vh]">
+      <pre ref={preRef} aria-hidden className={cn(SURFACE, 'pointer-events-none absolute inset-0 m-0 overflow-auto')}>
+        <code>
+          {tokens.map((t, i) => (
+            <span key={i} className={HL_CLASS[t.k]}>
+              {t.t}
+            </span>
+          ))}
+        </code>
+      </pre>
+      <textarea
+        ref={taRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onScroll={syncScroll}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoCorrect="off"
+        placeholder={placeholder}
+        aria-label="XML content — paste or edit directly"
+        className={cn(
+          SURFACE,
+          'absolute inset-0 resize-none overflow-auto bg-transparent text-transparent caret-ink outline-none placeholder:text-ink-soft/60',
+        )}
+      />
+    </div>
+  );
+}
+
 export function Viewer() {
-  const [input, setInput] = useState<string>(SAMPLE_XML[DEFAULT_SAMPLE_ID]);
-  const [sampleChoice, setSampleChoice] = useState<string>(DEFAULT_SAMPLE_ID);
+  const [raw, setRaw] = useState('');
   const [panelOpen, setPanelOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -41,21 +96,21 @@ export function Viewer() {
     });
   };
 
-  const decoded = useMemo(() => (mounted ? decodeSAML(input) : null), [mounted, input]);
-  const summary: InspectSummary | null = useMemo(() => {
-    if (!decoded?.ok) return null;
-    const res = inspect(decoded.xml);
-    return res.ok ? res.summary : null;
-  }, [decoded]);
+  // The single surface both accepts paste and shows the result: if what
+  // lands decodes to something OTHER than itself (Base64, +DEFLATE,
+  // URL-encoded), replace it with the decoded XML so the box always holds
+  // readable, editable markup. Already-raw XML decodes to itself — a no-op —
+  // so ordinary hand-editing is never touched or re-derived mid-keystroke.
+  const handleChange = (value: string) => {
+    const decoded = decodeSAML(value);
+    setRaw(decoded.ok && decoded.xml !== value.trim() ? decoded.xml : value);
+  };
 
-  const loadSample = (id: string) => {
-    setSampleChoice(id);
-    if (id) setInput(SAMPLE_XML[id] ?? '');
-  };
-  const edit = (value: string) => {
-    setInput(value);
-    setSampleChoice('');
-  };
+  const summary: InspectSummary | null = useMemo(() => {
+    if (!raw.trim()) return null;
+    const res = inspect(raw);
+    return res.ok ? res.summary : null;
+  }, [raw]);
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
@@ -63,60 +118,13 @@ export function Viewer() {
         <h1 className="text-heading font-semibold text-ink">Viewer</h1>
       </header>
 
-      <Instrument
-        title="Input"
-        meta={
-          decoded?.ok ? (
-            <Badge tone="blueprint">{encodingLabel(decoded.encoding!)}</Badge>
-          ) : decoded && !decoded.ok ? (
-            <Badge tone="unsigned">undecodable</Badge>
-          ) : null
-        }
-      >
-        <div className="flex flex-col gap-3 p-3 lg:flex-row">
-          <label htmlFor="viewer-input" className="sr-only">
-            XML or SAMLResponse to view
-          </label>
-          <textarea
-            id="viewer-input"
-            value={input}
-            onChange={(e) => edit(e.target.value)}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoCorrect="off"
-            placeholder="Paste XML or a SAMLResponse — any encoding is detected and undone automatically."
-            className="h-20 w-full flex-1 resize-y rounded-md border border-line bg-surface-sunken p-3 font-mono text-xs leading-relaxed text-ink outline-none placeholder:text-ink-soft/60 focus-visible:border-blueprint-soft"
-          />
-          <div className="flex shrink-0 flex-row flex-wrap items-start gap-2 lg:w-48 lg:flex-col lg:items-stretch">
-            <div className="relative w-full">
-              <select
-                aria-label="Load an example"
-                value={sampleChoice}
-                onChange={(e) => loadSample(e.target.value)}
-                className="h-8 w-full rounded-md border border-line bg-surface pl-3 pr-8 text-sm text-ink outline-none hover:border-blueprint-soft focus-visible:border-blueprint-soft"
-              >
-                <option value="">Load example…</option>
-                {SAMPLES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button size="sm" variant="ghost" onClick={() => edit('')} disabled={!input}>
-              Clear
-            </Button>
-          </div>
-        </div>
-      </Instrument>
-
-      <div className={cn('mt-4 grid grid-cols-1 gap-4', panelOpen && 'lg:grid-cols-[minmax(0,1fr)_360px]')}>
+      <div className={cn('grid grid-cols-1 gap-4', panelOpen && 'lg:grid-cols-[minmax(0,1fr)_360px]')}>
         <Instrument
           title="XML viewer"
           className="min-w-0"
           meta={
             <div className="flex items-center gap-2">
-              {decoded?.ok && <CopyButton value={decoded.xml} label="Copy" />}
+              <CopyButton value={raw} label="Copy" disabled={!raw} />
               <button
                 type="button"
                 onClick={togglePanel}
@@ -134,6 +142,7 @@ export function Viewer() {
               </button>
             </div>
           }
+          bodyClassName="flex flex-col"
         >
           {!mounted ? (
             <div className="space-y-2 p-4" aria-hidden>
@@ -141,19 +150,12 @@ export function Viewer() {
                 <div key={i} className="h-3.5 animate-pulse rounded bg-surface-sunken" style={{ width: `${w}%` }} />
               ))}
             </div>
-          ) : decoded?.ok ? (
-            <div className="max-h-[62vh] overflow-auto lg:max-h-[80vh]">
-              <CodeXml src={decoded.xml} className="p-4" />
-            </div>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-              <p className="text-subhead font-medium text-ink">
-                {input.trim() ? decoded?.error?.title ?? 'Could not read this input' : 'Paste something to view it'}
-              </p>
-              <p className="max-w-sm text-sm leading-relaxed text-ink-soft">
-                {input.trim() ? decoded?.error?.detail : 'Raw XML, Base64, Base64+DEFLATE, or URL-encoded — anything the Decoder accepts.'}
-              </p>
-            </div>
+            <EditableXml
+              value={raw}
+              onChange={handleChange}
+              placeholder="Paste or write XML here — a SAMLResponse in any encoding is decoded in place automatically."
+            />
           )}
         </Instrument>
 
@@ -175,9 +177,11 @@ export function Viewer() {
               }
               bodyClassName="max-h-[62vh] overflow-auto lg:max-h-[80vh]"
             >
-              {summary ? <FieldsPanel summary={summary} /> : (
+              {summary ? (
+                <FieldsPanel summary={summary} />
+              ) : (
                 <p className="p-4 text-sm leading-relaxed text-ink-soft">
-                  Decode something above to see its security-relevant fields here.
+                  Paste something in the viewer to see its security-relevant fields here.
                 </p>
               )}
             </Instrument>

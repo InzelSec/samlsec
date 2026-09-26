@@ -3,9 +3,7 @@
 import { useMemo, useState } from 'react';
 import { encodeBase64, encodeBase64Deflate, encodeRedirectParam } from '@/lib/saml/encode';
 import { MAX_INPUT_BYTES } from '@/lib/saml/decode';
-import { SAMPLES, SAMPLE_XML, DEFAULT_SAMPLE_ID } from '@/content/fixtures/samples';
 import { Instrument } from '@/components/ui/Panel';
-import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { PipelineTrail } from '@/components/ui/PipelineTrail';
 
@@ -34,20 +32,9 @@ function encode(xml: string): EncodeState {
 }
 
 export function EncodePanel() {
-  const [xml, setXml] = useState<string>(SAMPLE_XML[DEFAULT_SAMPLE_ID]);
-  const [sampleChoice, setSampleChoice] = useState<string>(DEFAULT_SAMPLE_ID);
+  const [xml, setXml] = useState<string>('');
 
   const result = useMemo(() => encode(xml), [xml]);
-
-  const loadSample = (id: string) => {
-    setSampleChoice(id);
-    if (id) setXml(SAMPLE_XML[id] ?? '');
-  };
-
-  const edit = (value: string) => {
-    setXml(value);
-    setSampleChoice('');
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,33 +46,13 @@ export function EncodePanel() {
           <textarea
             id="saml-xml-input"
             value={xml}
-            onChange={(e) => edit(e.target.value)}
+            onChange={(e) => setXml(e.target.value)}
             spellCheck={false}
             autoCapitalize="off"
             autoCorrect="off"
             placeholder="Paste or write the raw SAML XML to encode — a Response, an Assertion, an AuthnRequest…"
             className="h-40 w-full resize-y rounded-md border border-line bg-surface-sunken p-3 font-mono text-xs leading-relaxed text-ink outline-none placeholder:text-ink-soft/60 focus-visible:border-blueprint-soft lg:h-56"
           />
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
-              <select
-                aria-label="Load an example"
-                value={sampleChoice}
-                onChange={(e) => loadSample(e.target.value)}
-                className="h-8 rounded-md border border-line bg-surface pl-3 pr-8 text-sm text-ink outline-none hover:border-blueprint-soft focus-visible:border-blueprint-soft"
-              >
-                <option value="">Load example…</option>
-                {SAMPLES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button size="sm" variant="ghost" onClick={() => edit('')} disabled={!xml}>
-              Clear
-            </Button>
-          </div>
           <p className="text-xs leading-relaxed text-ink-soft">
             Encoded byte-for-byte from exactly what is in this box — we never reparse or reformat your XML first, since
             that could silently change a signed document. Nothing leaves your browser.

@@ -12,10 +12,8 @@ import { decodeSAML, encodingLabel } from '@/lib/saml/decode';
 import { parseSAML } from '@/lib/saml/anatomy';
 import { serialize } from '@/lib/saml/render';
 import type { AnatomyRole, DecodeError, DecodeResult } from '@/lib/saml/types';
-import { SAMPLES, SAMPLE_XML, DEFAULT_SAMPLE_ID } from '@/content/fixtures/samples';
 import { Instrument } from '@/components/ui/Panel';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { CodeXml } from '@/components/ui/CodeXml';
 import { PipelineTrail } from '@/components/ui/PipelineTrail';
@@ -54,9 +52,8 @@ function analyze(input: string) {
 }
 
 export function Decoder() {
-  const [xmlViewMode, setXmlViewMode] = useState<'annotated' | 'raw'>('annotated');
-  const [input, setInput] = useState<string>(SAMPLE_XML[DEFAULT_SAMPLE_ID]);
-  const [sampleChoice, setSampleChoice] = useState<string>(DEFAULT_SAMPLE_ID);
+  const [xmlViewMode, setXmlViewMode] = useState<'annotated' | 'raw'>('raw');
+  const [input, setInput] = useState<string>('');
 
   // The decode/parse pipeline uses browser-shaped APIs and produces interactive
   // output — there is nothing to gain from prerendering it. Run it only after
@@ -134,16 +131,6 @@ export function Decoder() {
     }
   }, []);
 
-  const loadSample = (id: string) => {
-    setSampleChoice(id);
-    if (id) setInput(SAMPLE_XML[id] ?? '');
-  };
-
-  const editInput = (value: string) => {
-    setInput(value);
-    setSampleChoice(''); // once edited, it is no longer "the example"
-  };
-
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       <header className="pb-4 pt-6">
@@ -167,40 +154,20 @@ export function Decoder() {
             ) : null
           }
         >
-          <div className="flex flex-col gap-3 p-3 lg:flex-row">
+          <div className="p-3">
             <label htmlFor="saml-input" className="sr-only">
               SAMLResponse (Base64, Base64+DEFLATE, URL-encoded, or raw XML)
             </label>
             <textarea
               id="saml-input"
               value={input}
-              onChange={(e) => editInput(e.target.value)}
+              onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
               autoCapitalize="off"
               autoCorrect="off"
               placeholder="Paste a SAMLResponse — Base64, Base64+DEFLATE, URL-encoded, or raw XML. Every step is detected and run automatically."
-              className="h-24 w-full flex-1 resize-y rounded-md border border-line bg-surface-sunken p-3 font-mono text-xs leading-relaxed text-ink outline-none placeholder:text-ink-soft/60 focus-visible:border-blueprint-soft"
+              className="h-24 w-full resize-y rounded-md border border-line bg-surface-sunken p-3 font-mono text-xs leading-relaxed text-ink outline-none placeholder:text-ink-soft/60 focus-visible:border-blueprint-soft"
             />
-            <div className="flex shrink-0 flex-row flex-wrap items-start gap-2 lg:w-48 lg:flex-col lg:items-stretch">
-              <div className="relative w-full">
-                <select
-                  aria-label="Load an example"
-                  value={sampleChoice}
-                  onChange={(e) => loadSample(e.target.value)}
-                  className="h-8 w-full rounded-md border border-line bg-surface pl-3 pr-8 text-sm text-ink outline-none hover:border-blueprint-soft focus-visible:border-blueprint-soft"
-                >
-                  <option value="">Load example…</option>
-                  {SAMPLES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <Button size="sm" variant="ghost" onClick={() => editInput('')} disabled={!input}>
-                Clear
-              </Button>
-            </div>
           </div>
           {result.kind === 'ok' ? (
             <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2.5">
@@ -263,7 +230,7 @@ export function Decoder() {
 
             {result.kind === 'loading' && <LoadingState />}
 
-            {result.kind === 'empty' && <EmptyState onLoad={() => loadSample(DEFAULT_SAMPLE_ID)} />}
+            {result.kind === 'empty' && <EmptyState />}
 
             {result.kind === 'decode-error' && <ErrorState error={result.error} />}
 
@@ -349,19 +316,15 @@ function LoadingState() {
   );
 }
 
-function EmptyState({ onLoad }: { onLoad: () => void }) {
+function EmptyState() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
       <div className="max-w-sm">
         <p className="text-subhead font-medium text-ink">Paste a SAMLResponse to begin</p>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-          Base64, Base64+DEFLATE, URL-encoded, or raw XML — every step is detected and undone for you automatically. Or
-          start from a worked example.
+          Base64, Base64+DEFLATE, URL-encoded, or raw XML — every step is detected and undone for you automatically.
         </p>
       </div>
-      <Button variant="primary" onClick={onLoad}>
-        Load example
-      </Button>
     </div>
   );
 }

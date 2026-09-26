@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { CodeXml } from '@/components/ui/CodeXml';
-import { EthicsBanner } from './EthicsBanner';
 import { cn } from '@/lib/cn';
 
 type Tab = 'xml' | 'base64' | 'deflate' | 'redirect';
@@ -77,47 +76,11 @@ export function Generator() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
-      <header className="pb-5 pt-8">
-        <h1 className="max-w-3xl text-title font-semibold text-ink sm:text-display">Attack generator</h1>
-        <p className="mt-3 max-w-prose text-base leading-relaxed text-ink-soft">
-          Paste a legitimate SAMLResponse from your own test environment, pick an attack class, and get the transformed
-          payload — with a plain explanation of what it does and the SP condition that makes it work. Everything runs in
-          your browser.
-        </p>
+      <header className="pb-4 pt-6">
+        <h1 className="text-heading font-semibold text-ink">Attacks</h1>
       </header>
 
-      <EthicsBanner />
-
-      <details className="group mt-3 rounded-lg border border-line bg-surface open:pb-4">
-        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-ink-soft hover:text-ink">
-          How this stays cryptographically valid — click to read the guarantee
-        </summary>
-        <div className="max-w-prose px-4 text-sm leading-relaxed text-ink-soft">
-          <p>
-            Each transform runs on one mutable DOM, parsed once from your input. Before any element is edited, the
-            node the signature actually references is either <strong className="font-medium text-ink">cloned first</strong>{' '}
-            (the untouched clone becomes what the Reference resolves to) or left{' '}
-            <strong className="font-medium text-ink">entirely unmutated</strong> and only relocated — moved by DOM
-            operations (<code className="font-mono text-xs">cloneNode</code>, <code className="font-mono text-xs">insertBefore</code>,{' '}
-            <code className="font-mono text-xs">appendChild</code>), never rebuilt from re-parsed text. It is serialized
-            back to XML exactly once, at the very end, for the whole document.
-          </p>
-          <p className="mt-2">
-            That is the correct bar, not a weaker stand-in for one: a validator always re-parses and re-canonicalizes
-            whatever you send it — it never diffs raw bytes against the wire. So the guarantee that matters is DOM-level
-            fidelity of the signed subtree, not literal octet-for-octet reuse of your input, and that is what this
-            engine gives every variant here.
-          </p>
-          <p className="mt-2">
-            What this does <em>not</em> mean: it has not been checked against a live XML-DSig verifier or a real,
-            IdP-signed response — there is no signing key or canonicalizer in this tool to test against. Treat a
-            generated payload as structurally correct, and confirm against your own authorized target before relying
-            on it.
-          </p>
-        </div>
-      </details>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         {/* Controls */}
         <div className="flex flex-col gap-4">
           <Instrument title="Source SAMLResponse">
@@ -264,11 +227,6 @@ export function Generator() {
               ))}
             </div>
 
-            <p className="border-b border-line bg-[var(--warn-tint)] px-3 py-1.5 text-[11px] leading-relaxed text-ink-soft">
-              Only effective against an SP that is already vulnerable. Send it only to systems you own or are authorized
-              to test.
-            </p>
-
             {mounted && result && !result.ok ? (
               <div className="px-4 py-10">
                 <div className="mx-auto max-w-md">
@@ -297,33 +255,6 @@ export function Generator() {
               </div>
             )}
           </Instrument>
-
-          {mounted && result?.ok && (
-            <Instrument title="Why this works">
-              <div className="flex flex-col divide-y divide-line">
-                <div className="px-4 py-4">
-                  <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft">What it does</h4>
-                  <p className="max-w-prose text-sm leading-relaxed text-ink">{result.explanation}</p>
-                </div>
-                <div className="px-4 py-4">
-                  <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft">The condition it needs</h4>
-                  <p className="max-w-prose text-sm leading-relaxed text-ink">{result.whyItWorks}</p>
-                </div>
-                {result.context.notes.length > 0 && (
-                  <div className="px-4 py-4">
-                    <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft">Notes on your source</h4>
-                    <ul className="flex flex-col gap-1">
-                      {result.context.notes.map((note) => (
-                        <li key={note} className="max-w-prose text-sm leading-relaxed text-warn">
-                          {note}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </Instrument>
-          )}
         </div>
       </div>
     </div>

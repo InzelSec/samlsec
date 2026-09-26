@@ -11,7 +11,12 @@ export function SiteFooter() {
           <a href={site.githubProfile} className="font-medium text-chrome-ink underline-offset-4 hover:text-chrome-accent hover:underline">
             {site.author}
           </a>
-          . Runs entirely in your browser — your SAML never leaves this machine.
+          . Runs entirely in your browser — your SAML never leaves this machine. The offensive tools are for systems
+          you own or are authorized to test — see{' '}
+          <Link href="/responsible-use/" className="font-medium text-chrome-ink underline-offset-4 hover:text-chrome-accent hover:underline">
+            responsible use
+          </Link>
+          .
         </p>
         <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <a href={site.github} className="hover:text-chrome-accent">
@@ -22,9 +27,6 @@ export function SiteFooter() {
           </a>
           <Link href="/about/" className="hover:text-chrome-accent">
             About
-          </Link>
-          <Link href="/responsible-use/" className="hover:text-chrome-accent">
-            Responsible use
           </Link>
           <a href={`${site.github}/blob/main/LICENSE`} className="hover:text-chrome-accent">
             MIT
