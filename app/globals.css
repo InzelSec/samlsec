@@ -8,9 +8,9 @@
    ========================================================================= */
 
 :root {
-  --bg: #fbfbf9;
-  --surface: #ffffff;
-  --surface-sunken: #f4f4f0;
+  --bg: #f4f3ef;
+  --surface: #f8f7f5;
+  --surface-sunken: #edece6;
   --ink: #1a1f2b;
   --ink-soft: #5a6172;
   --line: #e4e4df;
@@ -152,8 +152,12 @@
     border-radius: 3px;
   }
 
+  /* A tint of --focus rather than --blueprint-tint: the latter sits almost
+     flush against --surface in dark mode, making selections nearly
+     invisible there (notably in the Viewer, where the highlight has to
+     read clearly against the syntax-colored layer stacked underneath). */
   ::selection {
-    background: var(--blueprint-tint);
+    background: color-mix(in srgb, var(--focus) 35%, transparent);
     color: var(--ink);
   }
 
