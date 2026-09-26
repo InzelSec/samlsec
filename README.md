@@ -23,7 +23,7 @@ Live at <https://inzelsec.github.io/samlsec/>.
 - **Attacks** — the SAML Raider-equivalent: generates XSW1–8, signature-exclusion, comment-injection, and
   namespace-forgery payloads from a legitimate response you provide, with the SP condition each one needs.
 
-Differential, CVEs, Learn, and Checklist are stubbed and being built out.
+Differential and Learn are stubbed and being built out.
 
 ## Signature-preservation test suite
 

@@ -28,5 +28,4 @@ export const NAV: NavItem[] = [
   { href: '/differential/', label: 'Differential', hint: 'How parsers disagree' },
   { href: '/cves/', label: 'CVEs', hint: 'The SAML CVE database' },
   { href: '/learn/', label: 'Learn', hint: 'Guides & curated reading' },
-  { href: '/checklist/', label: 'Checklist', hint: 'Pentest checklist' },
 ];

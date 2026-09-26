@@ -44,11 +44,6 @@ const CARDS = [
     name: 'Learn',
     text: 'Guides to XSW, canonicalization, and the modern parser attacks — plus curated further reading.',
   },
-  {
-    href: '/checklist/',
-    name: 'Checklist',
-    text: 'A structured SSO/SAML pentest checklist you can work through.',
-  },
 ];
 
 export default function HomePage() {
