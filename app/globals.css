@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Design tokens. Light is the canonical theme; dark is derived from the same
+   roles. Never hardcode a color in a component — reach for a token.
+   ========================================================================= */
+
+:root {
+  --bg: #fbfbf9;
+  --surface: #ffffff;
+  --surface-sunken: #f4f4f0;
+  --ink: #1a1f2b;
+  --ink-soft: #5a6172;
+  --line: #e4e4df;
+  --blueprint: #1e3a5f;
+  --blueprint-soft: #3e6494;
+  --signed: #2e7d5b;
+  --unsigned: #b4472e;
+  --warn: #c98a2b;
+
+  /* Semantic tints — the faint background wash behind covered / uncovered regions. */
+  --signed-tint: #eaf4ee;
+  --unsigned-tint: #fbece7;
+  --warn-tint: #fbf3e2;
+  --blueprint-tint: #eef2f7;
+
+  /* Syntax highlighting — several calm hues, deliberately not one neon accent. */
+  --syn-tag: #1e3a5f;
+  --syn-attr: #7a5c3e;
+  --syn-value: #2e5d50;
+  --syn-text: #1a1f2b;
+  --syn-punct: #9aa0ad;
+  --syn-comment: #98a0ae;
+
+  --focus: #3e6494;
+  color-scheme: light;
+}
+
+/* Explicit light choice re-affirms the defaults (so a toggle to light beats the OS). */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* No-JS fallback: honor the OS preference unless the user chose light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1420;
+    --surface: #171d2b;
+    --surface-sunken: #10151f;
+    --ink: #e8eaf0;
+    --ink-soft: #9aa3b5;
+    --line: #2a3242;
+    --blueprint: #5e8bc4;
+    --blueprint-soft: #7fa5d3;
+    --signed: #4caf82;
+    --unsigned: #e0765a;
+    --warn: #e0a94d;
+
+    --signed-tint: #162820;
+    --unsigned-tint: #2a1c18;
+    --warn-tint: #29230f;
+    --blueprint-tint: #17202e;
+
+    --syn-tag: #7fb0e8;
+    --syn-attr: #d6a96a;
+    --syn-value: #7fc7b0;
+    --syn-text: #e8eaf0;
+    --syn-punct: #5a6478;
+    --syn-comment: #6e7688;
+
+    --focus: #7fa5d3;
+    color-scheme: dark;
+  }
+}
+
+/* Explicit dark choice (JS-set) always wins in both directions. */
+:root[data-theme='dark'] {
+  --bg: #0f1420;
+  --surface: #171d2b;
+  --surface-sunken: #10151f;
+  --ink: #e8eaf0;
+  --ink-soft: #9aa3b5;
+  --line: #2a3242;
+  --blueprint: #5e8bc4;
+  --blueprint-soft: #7fa5d3;
+  --signed: #4caf82;
+  --unsigned: #e0765a;
+  --warn: #e0a94d;
+
+  --signed-tint: #162820;
+  --unsigned-tint: #2a1c18;
+  --warn-tint: #29230f;
+  --blueprint-tint: #17202e;
+
+  --syn-tag: #7fb0e8;
+  --syn-attr: #d6a96a;
+  --syn-value: #7fc7b0;
+  --syn-text: #e8eaf0;
+  --syn-punct: #5a6478;
+  --syn-comment: #6e7688;
+
+  --focus: #7fa5d3;
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   Base
+   ========================================================================= */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* Visible, consistent keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: var(--blueprint-tint);
+    color: var(--ink);
+  }
+
+  /* A quiet blueprint grid, used sparingly as a section background accent. */
+  .bp-grid {
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   Syntax + anatomy (the decoder)
+   ========================================================================= */
+
+.syn-punct {
+  color: var(--syn-punct);
+}
+.syn-tag {
+  color: var(--syn-tag);
+}
+.syn-attr {
+  color: var(--syn-attr);
+}
+.syn-value {
+  color: var(--syn-value);
+}
+.syn-text {
+  color: var(--syn-text);
+}
+.syn-comment {
+  color: var(--syn-comment);
+  font-style: italic;
+}
+
+.cov-signed {
+  background-color: var(--signed-tint);
+  box-shadow: inset 3px 0 0 var(--signed);
+}
+.cov-unsigned {
+  background-color: var(--unsigned-tint);
+  box-shadow: inset 3px 0 0 var(--unsigned);
+}
+
+/* Role emphasis when a legend item is hovered/focused. */
+.role-dim {
+  opacity: 0.4;
+  transition: opacity 160ms ease;
+}
+.role-hot {
+  outline: 1.5px dashed var(--blueprint-soft);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
