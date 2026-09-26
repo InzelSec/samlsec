@@ -32,7 +32,8 @@ export default function AboutPage() {
         <h2 className="pt-2 text-heading font-semibold text-ink">Who built it</h2>
         <p>
           {site.name} is built by {site.author}, a security researcher focused on SAML and authentication. It is open
-          source under the MIT license. Contributions, corrections, and new CVE or reading entries are welcome on the{' '}
+          source under the MIT license. Contributions, corrections, and new CVE entries, guides, or reading
+          recommendations are welcome on the{' '}
           <a href={site.github} className="font-medium text-blueprint underline-offset-4 hover:underline">
             repository
           </a>

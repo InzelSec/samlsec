@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { Decoder } from '@/components/SAMLDecoder/Decoder';
 
 export const metadata: Metadata = {
-  title: 'Visual SAML decoder',
+  title: 'Visual SAML decoder & encoder',
   description:
-    'Decode a SAMLResponse in your browser and see exactly what its signature covers. XSW, signature exclusion, comment injection — start by seeing the structure. Nothing is uploaded.',
+    'Decode a SAMLResponse in your browser — URL-decode, Base64-decode, and inflate run automatically, in order — and see exactly what its signature covers. Encode raw XML back into both SAML bindings. Nothing is uploaded.',
   alternates: { canonical: '/' },
 };
 
@@ -13,8 +13,7 @@ const SUITE = [
   { href: '/tools/', name: 'Encode & decode', text: 'Base64, DEFLATE, URL, pretty-print, X.509 — the plumbing, client-side.' },
   { href: '/differential/', name: 'Parser differentials', text: 'Watch the same document read differently by lxml, REXML, Go, and friends.' },
   { href: '/cves/', name: 'CVE database', text: 'Every SAML CVE, filterable by library, language, and attack class.' },
-  { href: '/learn/', name: 'Learn', text: 'Guides to XSW, canonicalization, and the modern parser attacks.' },
-  { href: '/reading/', name: 'Reading', text: 'The essential research, gathered in one place.' },
+  { href: '/learn/', name: 'Learn', text: 'Guides to XSW, canonicalization, and the modern parser attacks — plus curated further reading.' },
   { href: '/checklist/', name: 'Pentest checklist', text: 'A structured SSO/SAML checklist you can work through.' },
 ];
 

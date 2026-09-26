@@ -32,7 +32,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-ink-soft transition-colors hover:border-blueprint-soft hover:text-blueprint"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-chrome-line bg-[var(--chrome-accent-tint)] text-chrome-ink-soft transition-colors hover:border-chrome-accent hover:text-chrome-ink"
     >
       {/* Render a stable icon before hydration to avoid a mismatch. */}
       {theme === null || !isDark ? <MoonIcon /> : <SunIcon />}

@@ -21,11 +21,11 @@ export interface NavItem {
 }
 
 export const NAV: NavItem[] = [
-  { href: '/', label: 'Decoder', hint: 'Inspect a SAMLResponse' },
+  { href: '/', label: 'Decoder', hint: 'Decode & encode a SAMLResponse' },
+  { href: '/tools/attack-generator/', label: 'Attacks', hint: 'XSW & signature exclusion — like SAML Raider' },
   { href: '/tools/', label: 'Tools', hint: 'Encode, decode, transform' },
   { href: '/differential/', label: 'Differential', hint: 'How parsers disagree' },
   { href: '/cves/', label: 'CVEs', hint: 'The SAML CVE database' },
-  { href: '/learn/', label: 'Learn', hint: 'Guides to the attacks' },
-  { href: '/reading/', label: 'Reading', hint: 'Curated research' },
+  { href: '/learn/', label: 'Learn', hint: 'Guides & curated reading' },
   { href: '/checklist/', label: 'Checklist', hint: 'Pentest checklist' },
 ];

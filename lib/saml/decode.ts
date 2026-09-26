@@ -31,45 +31,57 @@ function base64ToBytes(input: string): Uint8Array {
 
 /**
  * Detect the encoding of a pasted SAML blob and return the decoded XML.
- * Order of attempts mirrors how SAML actually travels:
- *   1. raw XML (already decoded, e.g. copied from a debugger)
- *   2. Base64 (HTTP-POST binding)
- *   3. Base64 + raw DEFLATE (HTTP-Redirect binding)
+ * This is the entire wire pipeline, run automatically and in the order SAML
+ * actually travels — the caller never has to know or pick the steps:
+ *   1. URL-decode, if the blob was lifted from a query string (Redirect binding).
+ *   2. Base64-decode.
+ *   3. Inflate (raw DEFLATE, or zlib as a fallback some producers use) — only
+ *      when the Base64 bytes are compressed rather than already being XML.
+ * Each step is skipped automatically when the input doesn't need it (e.g. XML
+ * copied straight out of a debugger needs none of them), and exactly which
+ * steps ran is reported back in `urlDecoded` / `encoding` so the UI can show
+ * its work rather than asserting it.
  */
 export function decodeSAML(input: string): DecodeResult {
   const trimmed = input.trim();
 
   if (trimmed === '') {
-    return { ok: false, encoding: null, xml: '', error: { title: 'Nothing to decode', detail: 'Paste a SAMLResponse to begin, or load the example.' } };
+    return { ok: false, encoding: null, urlDecoded: false, xml: '', error: { title: 'Nothing to decode', detail: 'Paste a SAMLResponse to begin, or load the example.' } };
   }
 
   if (encoder.encode(trimmed).length > MAX_INPUT_BYTES) {
     return {
       ok: false,
       encoding: null,
+      urlDecoded: false,
       xml: '',
       error: { title: 'That input is very large', detail: 'The decoder caps input at 5 MB to keep your browser responsive. Trim the blob to just the SAMLResponse and try again.' },
     };
   }
 
-  // 1. Raw XML.
+  // 1. Raw XML — no decoding needed at all.
   if (looksLikeXml(trimmed)) {
-    return { ok: true, encoding: 'raw', xml: trimmed };
+    return { ok: true, encoding: 'raw', urlDecoded: false, xml: trimmed };
   }
 
-  // 2 & 3. Base64 (optionally URL-encoded first).
+  // Step 1: URL-decode, only if the blob actually looks URL-encoded. Base64's
+  // alphabet (A-Z a-z 0-9 + / - _ =) never contains a literal '%', so seeing
+  // one is a reliable signal — never a false trigger on real Base64.
   let candidate = trimmed;
+  let urlDecoded = false;
   if (/%[0-9a-fA-F]{2}/.test(candidate)) {
     try {
       candidate = decodeURIComponent(candidate);
+      urlDecoded = true;
     } catch {
       /* leave as-is; base64 step will report */
     }
     if (looksLikeXml(candidate.trim())) {
-      return { ok: true, encoding: 'raw', xml: candidate.trim() };
+      return { ok: true, encoding: 'raw', urlDecoded, xml: candidate.trim() };
     }
   }
 
+  // Step 2: Base64-decode.
   let bytes: Uint8Array;
   try {
     bytes = base64ToBytes(candidate);
@@ -77,6 +89,7 @@ export function decodeSAML(input: string): DecodeResult {
     return {
       ok: false,
       encoding: null,
+      urlDecoded,
       xml: '',
       error: {
         title: "Couldn't decode this as Base64",
@@ -85,18 +98,18 @@ export function decodeSAML(input: string): DecodeResult {
     };
   }
 
-  // Plain Base64 → XML?
+  // Plain Base64 → XML (HTTP-POST binding never deflates)?
   const asText = decoder.decode(bytes);
   if (looksLikeXml(asText)) {
-    return { ok: true, encoding: 'base64', xml: asText.trim() };
+    return { ok: true, encoding: 'base64', urlDecoded, xml: asText.trim() };
   }
 
-  // Base64 + DEFLATE (redirect binding uses raw deflate; some producers use zlib).
+  // Step 3: inflate (redirect binding uses raw DEFLATE; some producers use zlib).
   for (const inflate of [pako.inflateRaw, pako.inflate] as const) {
     try {
       const out = inflate(bytes, { to: 'string' }) as string;
       if (looksLikeXml(out)) {
-        return { ok: true, encoding: 'base64+deflate', xml: out.trim() };
+        return { ok: true, encoding: 'base64+deflate', urlDecoded, xml: out.trim() };
       }
     } catch {
       /* try next strategy */
@@ -106,6 +119,7 @@ export function decodeSAML(input: string): DecodeResult {
   return {
     ok: false,
     encoding: null,
+    urlDecoded,
     xml: '',
     error: {
       title: "Decoded, but it isn't XML",

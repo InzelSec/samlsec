@@ -17,7 +17,15 @@ export type AnatomyRole =
 export interface DecodeResult {
   ok: boolean;
   encoding: Encoding | null;
-  /** Decoded XML text (best effort even if not well-formed). */
+  /**
+   * True when a URL-decode step ran before the Base64/DEFLATE stage (the
+   * value was lifted from a query string). Lets the UI disclose the exact
+   * chain of steps it applied, not just the final encoding.
+   */
+  urlDecoded: boolean;
+  /** Decoded XML text (best effort even if not well-formed). Exactly what the
+   *  pipeline produced — never reformatted — so it stays safe to feed back
+   *  into a signature check or the encoder. */
   xml: string;
   /** User-facing explanation when ok === false. */
   error?: DecodeError;

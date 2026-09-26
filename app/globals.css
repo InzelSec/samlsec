@@ -35,6 +35,17 @@
   --syn-comment: #98a0ae;
 
   --focus: #3e6494;
+
+  /* Chrome — the dark-navy shell (header + footer). Deliberately constant
+     across themes: it is a brand element, an anchor of deep blue that frames
+     the light working surface. Never redefined in the dark blocks below. */
+  --chrome-bg: #131a2b;
+  --chrome-ink: #f2f5fa;
+  --chrome-ink-soft: #9db0cc;
+  --chrome-line: #26324a;
+  --chrome-accent: #74a9e6;
+  --chrome-accent-tint: #223154;
+
   color-scheme: light;
 }
 

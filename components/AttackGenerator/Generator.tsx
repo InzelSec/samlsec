@@ -88,6 +88,35 @@ export function Generator() {
 
       <EthicsBanner />
 
+      <details className="group mt-3 rounded-lg border border-line bg-surface open:pb-4">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-ink-soft hover:text-ink">
+          How this stays cryptographically valid — click to read the guarantee
+        </summary>
+        <div className="max-w-prose px-4 text-sm leading-relaxed text-ink-soft">
+          <p>
+            Each transform runs on one mutable DOM, parsed once from your input. Before any element is edited, the
+            node the signature actually references is either <strong className="font-medium text-ink">cloned first</strong>{' '}
+            (the untouched clone becomes what the Reference resolves to) or left{' '}
+            <strong className="font-medium text-ink">entirely unmutated</strong> and only relocated — moved by DOM
+            operations (<code className="font-mono text-xs">cloneNode</code>, <code className="font-mono text-xs">insertBefore</code>,{' '}
+            <code className="font-mono text-xs">appendChild</code>), never rebuilt from re-parsed text. It is serialized
+            back to XML exactly once, at the very end, for the whole document.
+          </p>
+          <p className="mt-2">
+            That is the correct bar, not a weaker stand-in for one: a validator always re-parses and re-canonicalizes
+            whatever you send it — it never diffs raw bytes against the wire. So the guarantee that matters is DOM-level
+            fidelity of the signed subtree, not literal octet-for-octet reuse of your input, and that is what this
+            engine gives every variant here.
+          </p>
+          <p className="mt-2">
+            What this does <em>not</em> mean: it has not been checked against a live XML-DSig verifier or a real,
+            IdP-signed response — there is no signing key or canonicalizer in this tool to test against. Treat a
+            generated payload as structurally correct, and confirm against your own authorized target before relying
+            on it.
+          </p>
+        </div>
+      </details>
+
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         {/* Controls */}
         <div className="flex flex-col gap-4">
@@ -125,8 +154,9 @@ export function Generator() {
                 </Button>
               </div>
               <p className="text-xs leading-relaxed text-ink-soft">
-                Raw XML in. The generator preserves the signed element byte-for-byte, so a real signature stays valid
-                where the attack relies on it.
+                Raw XML in. Every transform clones the signed element before making any edit — the reference a real
+                signature resolves to is never mutated, only relocated — so it canonicalizes identically and the
+                signature stays valid where the attack relies on it.
               </p>
             </div>
           </Instrument>

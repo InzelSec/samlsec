@@ -30,8 +30,8 @@ export function MainNav() {
               className={cn(
                 'rounded-md px-3 py-1.5 text-sm transition-colors',
                 active
-                  ? 'bg-[var(--blueprint-tint)] font-medium text-blueprint'
-                  : 'text-ink-soft hover:bg-surface-sunken hover:text-ink',
+                  ? 'bg-[var(--chrome-accent-tint)] font-medium text-chrome-ink'
+                  : 'text-chrome-ink-soft hover:bg-[var(--chrome-accent-tint)] hover:text-chrome-ink',
               )}
             >
               {item.label}
@@ -43,7 +43,7 @@ export function MainNav() {
       {/* Mobile toggle */}
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-ink-soft md:hidden"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-chrome-line bg-[var(--chrome-accent-tint)] text-chrome-ink-soft transition-colors hover:text-chrome-ink md:hidden"
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label="Toggle navigation"
