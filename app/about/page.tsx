@@ -22,7 +22,11 @@ export default function AboutPage() {
           There has never been a <code className="font-mono text-sm text-ink">jwt.io</code> for SAML: somewhere you can
           paste a SAMLResponse and immediately see its anatomy — what an assertion is, what a signature covers, and,
           crucially, what it does <em>not</em> cover. That gap is where most SAML attacks live, and seeing it is the first
-          step to understanding them. The decoder is that tool; the rest of the site builds outward from it.
+          step to understanding them. The{' '}
+          <Link href="/decoder/" className="font-medium text-blueprint underline-offset-4 hover:underline">
+            decoder
+          </Link>{' '}
+          is that tool; the rest of the site builds outward from it.
         </p>
         <p>
           Everything runs client-side. There is no backend and no tracking. Your SAML is processed in your browser and

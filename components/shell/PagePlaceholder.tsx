@@ -31,7 +31,7 @@ export function PagePlaceholder({
 
       <p className="mt-10 text-sm text-ink-soft">
         In the meantime, the{' '}
-        <Link href="/" className="font-medium text-blueprint underline-offset-4 hover:underline">
+        <Link href="/decoder/" className="font-medium text-blueprint underline-offset-4 hover:underline">
           visual decoder
         </Link>{' '}
         is live.

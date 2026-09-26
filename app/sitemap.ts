@@ -4,7 +4,7 @@ import { site } from '@/lib/site';
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ['/', '/tools/', '/tools/attack-generator/', '/differential/', '/cves/', '/learn/', '/checklist/', '/about/', '/responsible-use/'];
+  const routes = ['/', '/decoder/', '/encoder/', '/viewer/', '/attacks/', '/differential/', '/cves/', '/learn/', '/checklist/', '/about/', '/responsible-use/'];
   const now = new Date();
   return routes.map((route) => ({
     // Plain concatenation, not `new URL(route, site.url)`: an absolute-path

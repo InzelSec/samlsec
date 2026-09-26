@@ -52,7 +52,7 @@ export default function ResponsibleUsePage() {
 
       <p className="mt-10 text-sm text-ink-soft">
         Back to the{' '}
-        <Link href="/" className="font-medium text-blueprint underline-offset-4 hover:underline">
+        <Link href="/decoder/" className="font-medium text-blueprint underline-offset-4 hover:underline">
           decoder
         </Link>
         .

@@ -21,9 +21,10 @@ export interface NavItem {
 }
 
 export const NAV: NavItem[] = [
-  { href: '/', label: 'Decoder', hint: 'Decode & encode a SAMLResponse' },
-  { href: '/tools/attack-generator/', label: 'Attacks', hint: 'XSW & signature exclusion — like SAML Raider' },
-  { href: '/tools/', label: 'Tools', hint: 'Encode, decode, transform' },
+  { href: '/decoder/', label: 'Decoder', hint: 'Decode a SAMLResponse automatically' },
+  { href: '/encoder/', label: 'Encoder', hint: 'Encode XML into both SAML bindings' },
+  { href: '/viewer/', label: 'Viewer', hint: 'Full-screen, byte-exact XML viewer' },
+  { href: '/attacks/', label: 'Attacks', hint: 'XSW & signature exclusion — like SAML Raider' },
   { href: '/differential/', label: 'Differential', hint: 'How parsers disagree' },
   { href: '/cves/', label: 'CVEs', hint: 'The SAML CVE database' },
   { href: '/learn/', label: 'Learn', hint: 'Guides & curated reading' },
