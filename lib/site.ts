@@ -1,15 +1,15 @@
-// Central site metadata. Placeholders marked TODO should be confirmed before
-// the first public deploy.
+// Central site metadata.
 export const site = {
   name: 'samlsec',
-  // TODO: confirm the final domain before deploy (candidates in the spec).
-  url: 'https://samlsec.io',
+  // Live at the GitHub Pages project-site URL. If a custom domain (e.g.
+  // samlsec.io) is ever wired up, update this — and note that changes
+  // upstream (sitemap, canonical URLs, OG images) all flow from it.
+  url: 'https://inzelsec.github.io/samlsec',
   description:
     'The offensive, educational counterpart to samltool.com. Decode, inspect, and understand SAML — see what a signature actually covers, entirely in your browser.',
   author: 'Alex Insel',
-  // TODO: confirm these before deploy.
-  github: 'https://github.com/alexinsel/samlsec',
-  githubProfile: 'https://github.com/alexinsel',
+  github: 'https://github.com/InzelSec/samlsec',
+  githubProfile: 'https://github.com/InzelSec',
   social: 'https://x.com/alexinsel',
 } as const;
 
